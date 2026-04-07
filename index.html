@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Jump Rope Training Timer - โปรแกรมฝึกกระโดดเชือกพร้อมจับเวลา เสียงเตือน และสรุปผลการฝึก">
+    <meta name="theme-color" content="#0a0a1a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Jump Rope Trainer | โปรแกรมฝึกกระโดดเชือก</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪢</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- ===== SCREEN: MODE SELECTION ===== -->
+    <div id="screen-select" class="screen active">
+        <header class="app-header">
+            <div class="logo-container">
+                <div class="logo-icon">🪢</div>
+                <h1>JUMP ROPE<br><span class="accent">TRAINER</span></h1>
+            </div>
+            <p class="tagline">เลือกโปรแกรมฝึกของคุณ</p>
+        </header>
+
+        <div class="mode-cards">
+            <button class="mode-card" id="btn-beginner" data-mode="beginner">
+                <div class="card-glow beginner-glow"></div>
+                <div class="card-content">
+                    <div class="card-badge">🟢</div>
+                    <h2>Beginner</h2>
+                    <p class="card-subtitle">เริ่มต้น</p>
+                    <div class="card-stats">
+                        <div class="stat"><span class="stat-val">30s</span><span class="stat-label">Work</span></div>
+                        <div class="stat"><span class="stat-val">45s</span><span class="stat-label">Rest</span></div>
+                        <div class="stat"><span class="stat-val">10</span><span class="stat-label">Rounds</span></div>
+                    </div>
+                    <div class="card-total">⏱ รวม ~12.5 นาที</div>
+                </div>
+            </button>
+
+            <button class="mode-card" id="btn-intermediate" data-mode="intermediate">
+                <div class="card-glow intermediate-glow"></div>
+                <div class="card-content">
+                    <div class="card-badge">🟡</div>
+                    <h2>Intermediate</h2>
+                    <p class="card-subtitle">ปานกลาง</p>
+                    <div class="card-stats">
+                        <div class="stat"><span class="stat-val">45s</span><span class="stat-label">Work</span></div>
+                        <div class="stat"><span class="stat-val">30s</span><span class="stat-label">Rest</span></div>
+                        <div class="stat"><span class="stat-val">15</span><span class="stat-label">Rounds</span></div>
+                    </div>
+                    <div class="card-total">⏱ รวม ~18.75 นาที</div>
+                </div>
+            </button>
+
+            <button class="mode-card" id="btn-professional" data-mode="professional">
+                <div class="card-glow professional-glow"></div>
+                <div class="card-content">
+                    <div class="card-badge">🔴</div>
+                    <h2>Professional</h2>
+                    <p class="card-subtitle">มืออาชีพ</p>
+                    <div class="card-stats">
+                        <div class="stat"><span class="stat-val">60s</span><span class="stat-label">Work</span></div>
+                        <div class="stat"><span class="stat-val">15s</span><span class="stat-label">Rest</span></div>
+                        <div class="stat"><span class="stat-val">20</span><span class="stat-label">Rounds</span></div>
+                    </div>
+                    <div class="card-total">⏱ รวม ~25 นาที</div>
+                </div>
+            </button>
+
+            <button class="mode-card custom-card" id="btn-custom" data-mode="custom">
+                <div class="card-glow custom-glow"></div>
+                <div class="card-content">
+                    <div class="card-badge">⚙️</div>
+                    <h2>Custom</h2>
+                    <p class="card-subtitle">กำหนดเอง</p>
+                    <div class="custom-inputs">
+                        <div class="input-group">
+                            <label for="custom-work">Work (s)</label>
+                            <input type="number" id="custom-work" min="5" max="300" value="30" inputmode="numeric">
+                        </div>
+                        <div class="input-group">
+                            <label for="custom-rest">Rest (s)</label>
+                            <input type="number" id="custom-rest" min="5" max="300" value="30" inputmode="numeric">
+                        </div>
+                        <div class="input-group">
+                            <label for="custom-rounds">Rounds</label>
+                            <input type="number" id="custom-rounds" min="1" max="50" value="10" inputmode="numeric">
+                        </div>
+                    </div>
+                </div>
+            </button>
+        </div>
+
+        <!-- Ghost Mode Toggle -->
+        <div class="ghost-section">
+            <div class="ghost-toggle">
+                <label class="toggle-switch" for="ghost-mode-toggle">
+                    <input type="checkbox" id="ghost-mode-toggle">
+                    <span class="toggle-slider"></span>
+                </label>
+                <span class="ghost-label">👻 Ghost Mode — แข่งกับสถิติก่อนหน้า</span>
+            </div>
+            <div id="ghost-stats" class="ghost-stats hidden"></div>
+        </div>
+
+        <!-- BPM Metronome -->
+        <div class="bpm-section">
+            <div class="bpm-toggle">
+                <label class="toggle-switch" for="bpm-toggle">
+                    <input type="checkbox" id="bpm-toggle">
+                    <span class="toggle-slider"></span>
+                </label>
+                <span class="bpm-label">🎵 BPM Metronome</span>
+            </div>
+            <div id="bpm-controls" class="bpm-controls hidden">
+                <input type="range" id="bpm-slider" min="60" max="200" value="120">
+                <span id="bpm-value" class="bpm-value">120 BPM</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== SCREEN: COUNTDOWN / TIMER ===== -->
+    <div id="screen-timer" class="screen">
+        <div class="timer-header">
+            <button class="btn-icon" id="btn-back" aria-label="กลับ">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            </button>
+            <div class="round-info">
+                <span id="current-round">1</span>
+                <span class="round-sep">/</span>
+                <span id="total-rounds">10</span>
+            </div>
+            <div class="status-badge" id="status-badge">READY</div>
+        </div>
+
+        <!-- Circular Progress -->
+        <div class="timer-ring-container">
+            <svg class="timer-ring" viewBox="0 0 260 260" id="timer-svg">
+                <defs>
+                    <linearGradient id="grad-work" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#FFD700"/>
+                        <stop offset="100%" style="stop-color:#FF8C00"/>
+                    </linearGradient>
+                    <linearGradient id="grad-rest" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#FF4444"/>
+                        <stop offset="100%" style="stop-color:#FF0066"/>
+                    </linearGradient>
+                    <linearGradient id="grad-ready" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#00FF88"/>
+                        <stop offset="100%" style="stop-color:#00CC66"/>
+                    </linearGradient>
+                    <filter id="glow">
+                        <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+                        <feMerge>
+                            <feMergeNode in="coloredBlur"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                </defs>
+                <circle class="timer-ring-bg" cx="130" cy="130" r="115" />
+                <circle class="timer-ring-progress" id="timer-progress" cx="130" cy="130" r="115" filter="url(#glow)" />
+            </svg>
+            <div class="timer-display">
+                <div class="timer-phase-label" id="timer-phase-label">🟢 กดเริ่ม</div>
+                <div class="timer-time" id="timer-time">00:30</div>
+                <div class="timer-phase-sub" id="timer-phase-sub">เตรียมพร้อม</div>
+            </div>
+            <!-- Ghost ring overlay -->
+            <svg class="ghost-ring" viewBox="0 0 260 260" id="ghost-svg" style="display:none;">
+                <circle class="ghost-ring-progress" id="ghost-progress" cx="130" cy="130" r="115" />
+            </svg>
+        </div>
+
+        <!-- Controls -->
+        <div class="timer-controls">
+            <button class="btn-control btn-start" id="btn-start">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+            </button>
+            <button class="btn-control btn-pause hidden" id="btn-pause">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+            </button>
+            <button class="btn-control btn-reset" id="btn-reset">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+            </button>
+        </div>
+
+        <!-- BPM visual indicator -->
+        <div id="bpm-indicator" class="bpm-indicator hidden">
+            <div class="bpm-dot" id="bpm-dot"></div>
+            <span id="bpm-display">120 BPM</span>
+        </div>
+    </div>
+
+    <!-- ===== SCREEN: SUMMARY ===== -->
+    <div id="screen-summary" class="screen">
+        <div class="summary-container">
+            <div class="summary-celebration">🎉</div>
+            <h2 class="summary-title">เยี่ยมมาก!</h2>
+            <p class="summary-subtitle">สำเร็จครบทุกรอบ</p>
+
+            <div class="summary-stats">
+                <div class="summary-stat-card">
+                    <div class="stat-icon">⏱</div>
+                    <div class="stat-detail">
+                        <span class="stat-number" id="summary-time">0</span>
+                        <span class="stat-unit">นาที</span>
+                    </div>
+                    <span class="stat-name">เวลารวม</span>
+                </div>
+                <div class="summary-stat-card">
+                    <div class="stat-icon">🔥</div>
+                    <div class="stat-detail">
+                        <span class="stat-number" id="summary-calories">0</span>
+                        <span class="stat-unit">kcal</span>
+                    </div>
+                    <span class="stat-name">แคลอรี่ (ประมาณ)</span>
+                </div>
+                <div class="summary-stat-card">
+                    <div class="stat-icon">🔄</div>
+                    <div class="stat-detail">
+                        <span class="stat-number" id="summary-rounds">0</span>
+                        <span class="stat-unit">รอบ</span>
+                    </div>
+                    <span class="stat-name">จำนวนรอบ</span>
+                </div>
+                <div class="summary-stat-card">
+                    <div class="stat-icon">💪</div>
+                    <div class="stat-detail">
+                        <span class="stat-number" id="summary-work-time">0</span>
+                        <span class="stat-unit">นาที</span>
+                    </div>
+                    <span class="stat-name">Work Time รวม</span>
+                </div>
+            </div>
+
+            <!-- Ghost comparison -->
+            <div id="ghost-comparison" class="ghost-comparison hidden">
+                <h3>👻 เปรียบเทียบกับครั้งก่อน</h3>
+                <div id="ghost-compare-content"></div>
+            </div>
+
+            <button class="btn-primary" id="btn-again">
+                <span>ฝึกอีกครั้ง</span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+            </button>
+            <button class="btn-secondary" id="btn-home">
+                <span>กลับหน้าหลัก</span>
+            </button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
